@@ -133,85 +133,68 @@ block genesisBlock(std::vector<user> &users)
 }
 int main()
 {
-    while (true)
+
+    printf("Creating users... ");
+    cout << endl;
+    std::vector<user> users = genUsers();
+    printf("Users created, Creating transaction pool... ");
+    cout << endl;
+    std::vector<transactions> trans = genTransactions(users);
+    cout << endl;
+    printf("Transaction pool created, Creating genesis block...");
+
+    // std::cout<<hash(1);
+
+    std::vector<block> blockChain;
+    std::vector<transactions> temp100;
+    blockChain.push_back(genesisBlock(users));
+    cout << endl;
+    printf("genBlock details: ");
+    cout << endl
+         << "genBlock merkle hash: " << blockChain.back().Header.merkleHash << endl;
+    cout << "genBlock dificulty: " << blockChain.back().Header.diff << endl;
+    cout << "genBlock timestamp: " << blockChain.back().Header.timestamp << endl;
+    cout << "genBlock version: " << blockChain.back().Header.version << endl;
+    cout << "genBlock nonce: " << genNonce(1) << endl;
+
+    cout << endl;
+
+    cout << "genBlock trans values:" << endl;
+    cout << "genBlock trans ammount: " << blockChain.back().Transtacions.back().amount << endl;
+    cout << "genBlock trans sender: " << blockChain.back().Transtacions.back().sender << endl;
+    cout << "genBlock trans reciever: " << blockChain.back().Transtacions.back().reciever << endl;
+    cout << "genBlock trans ID: " << blockChain.back().Transtacions.back().ID << endl;
+
+    std::vector<user> emptyUsers;
+
+    int foundNonce = 0;
+
+    for (int i = 0; i < 100; i++)
     {
+        temp100.push_back(trans[i]);
+    }
+    trans.erase(trans.begin(), std::next(trans.begin(), 100));
 
-        printf("Creating users... ");
-        cout << endl;
-        std::vector<user> users = genUsers();
-        printf("Users created, Creating transaction pool... ");
-        cout << endl;
-        std::vector<transactions> trans = genTransactions(users);
-        cout << endl;
-        printf("Transaction pool created, Creating genesis block...");
+    for (int i = 0; i < 10; i++)
+    {
+        block newBlock = genBlock(blockChain.back(), temp100, emptyUsers, blockChain, foundNonce);
+        bool checked = mine(blockChain[i], newBlock, temp100, users, blockChain, foundNonce);
 
-        // std::cout<<hash(1);
-
-        std::vector<block> blockChain;
-        std::vector<transactions> temp100;
-        blockChain.push_back(genesisBlock(users));
-        cout << endl;
-        printf("genBlock details: ");
-        cout << endl
-             << "genBlock merkle hash: " << blockChain.back().Header.merkleHash << endl;
-        cout << "genBlock dificulty: " << blockChain.back().Header.diff << endl;
-        cout << "genBlock timestamp: " << blockChain.back().Header.timestamp << endl;
-        cout << "genBlock version: " << blockChain.back().Header.version << endl;
-        cout << "genBlock nonce: " << genNonce(1) << endl;
-
-        cout << endl;
-
-        cout << "genBlock trans values:" << endl;
-        cout << "genBlock trans ammount: " << blockChain.back().Transtacions.back().amount << endl;
-        cout << "genBlock trans sender: " << blockChain.back().Transtacions.back().sender << endl;
-        cout << "genBlock trans reciever: " << blockChain.back().Transtacions.back().reciever << endl;
-        cout << "genBlock trans ID: " << blockChain.back().Transtacions.back().ID << endl;
-
-        std::vector<user> emptyUsers;
-
-        int foundNonce = 0;
-
-        for (int i = 0; i < 100; i++)
+        if (checked)
         {
-            temp100.push_back(trans[i]);
-        }
-        trans.erase(trans.begin(), std::next(trans.begin(), 100));
-    
-        for (int i = 0; i < 10; i++)
-        {
-            block newBlock = genBlock(blockChain.back(), temp100, emptyUsers, blockChain,foundNonce);
-            bool checked = mine(blockChain[i], newBlock, temp100, users, blockChain,foundNonce);
-
-            if (checked)
+            temp100.clear();
+            for (int j = 0; j < 100; j++)
             {
-                temp100.clear();
-                for (int j = 0; j < 100; j++)
-                {
-                    temp100.push_back(trans[j]);
-                }
-                trans.erase(trans.begin(), std::next(trans.begin(), 100));
-                genBlock(blockChain.back(), temp100, users, blockChain,foundNonce);
+                temp100.push_back(trans[j]);
             }
-            else
-                i--;
-            if (trans.empty())
-            {
-                trans = genTransactions(users);
-            }
+            trans.erase(trans.begin(), std::next(trans.begin(), 100));
+            genBlock(blockChain.back(), temp100, users, blockChain, foundNonce);
         }
-
-        cout << "Blockhain over, do you want to create a new blockchain?[Y/N]" << endl;
-        std::string cont;
-
-        while (std::cin >> cont)
+        else
+            i--;
+        if (trans.empty())
         {
-            if (cont == "y" || cont == "Y" || cont == "n" || cont == "N")
-                break;
-            cout << "Please enter a valid input![Y/N]";
-        }
-        if (cont == "N" || cont == "n")
-        {
-            break;
+            trans = genTransactions(users);
         }
     }
 
