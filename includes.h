@@ -4,6 +4,8 @@
 #include <random>
 #include <vector>
 #include <bits/stdc++.h>
+#include <chrono>
+
 std::string hash(std::string);
 std::string genNonce(int);
 
@@ -11,6 +13,12 @@ std::string getTime();
 
 using std::cout;
 using std::endl;
+
+using std::chrono::high_resolution_clock;
+using std::chrono::duration_cast;
+using std::chrono::duration;
+
+
 
 class user
 {
@@ -46,6 +54,7 @@ private:
     std::string nonce;
 
 public:
+    int foundNonce;
     std::string prevBlock;
     std::string timestamp;
     std::string merkleHash;
@@ -61,6 +70,6 @@ public:
     header Header;
     std::vector<transactions> Transtacions;
 };
-bool mine(block prevBlock, block, std::vector<transactions> blockTransactions, std::vector<user> &users, std::vector<block> &blockChain);
+bool mine(block prevBlock, block, std::vector<transactions> blockTransactions, std::vector<user> &users, std::vector<block> &blockChain,int &);
 
-block genBlock(block, std::vector<transactions>, std::vector<user> &, std::vector<block> &);
+block genBlock(block, std::vector<transactions>, std::vector<user> &, std::vector<block> &,int &);
