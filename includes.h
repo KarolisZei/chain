@@ -5,6 +5,8 @@
 #include <vector>
 #include <bits/stdc++.h>
 #include <chrono>
+#include <bitcoin/system.hpp>
+#include <algorithm>
 
 std::string hash(std::string);
 std::string genNonce(int);
@@ -18,7 +20,7 @@ using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
 using std::chrono::duration;
 
-
+bc::hash_digest create_merkle(bc::hash_list &merkle);
 
 class user
 {

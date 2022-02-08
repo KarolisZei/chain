@@ -11,7 +11,6 @@ bool mine(block prevBlock, block newBlock, std::vector<transactions> blockTransa
     for (int i = diff; i < diff+20000; i++)
         numbers.push_back(i);
     std::random_shuffle(numbers.begin(), numbers.end());
-
     for (int i = diff; i < diff+ 20000; i++)
     {
         std::string tempStr = hash(std::to_string(numbers[i]));

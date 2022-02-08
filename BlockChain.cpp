@@ -4,6 +4,7 @@
 #include <ctime>
 #include <time.h>
 #include <vector>
+//g++ 
 std::vector<transactions> genTransactions(std::vector<user> users)
 {
     srand(time(NULL));
@@ -124,7 +125,24 @@ block genesisBlock(std::vector<user> &users)
     users[send].amount -= 50;
 
     genTrans.ID = hash(hash(genTrans.reciever + genTrans.sender + std::to_string(genTrans.amount)));
-    genHeader.merkleHash = hash(genTrans.ID);
+
+      bc::hash_list tx_hashes;
+
+    char * temp = new char[65];
+    for (int j = 0; j < 65; j++)
+    {
+        genTrans.ID.append(&temp[j]);
+        // temp[j] = genTrans.ID[j];
+    }
+    
+    const char c[65] = {*temp};
+
+    tx_hashes.push_back(bc::hash_literal(c));
+    
+    const bc::hash_digest merkle_root = create_merkle(tx_hashes);
+    
+    genHeader.merkleHash =  bc::encode_base16(merkle_root);
+
     genesis.Transtacions.push_back(genTrans);
 
     genesis.Header = genHeader;
@@ -178,8 +196,9 @@ int main()
     for (int i = 0; i < 10; i++)
     {
         block newBlock = genBlock(blockChain.back(), temp100, emptyUsers, blockChain, foundNonce);
+        
         bool checked = mine(blockChain[i], newBlock, temp100, users, blockChain, foundNonce);
-
+        
         if (checked)
         {
             temp100.clear();

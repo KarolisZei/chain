@@ -1,4 +1,8 @@
 #include "includes.h"
+// export PKG_CONFIG_PATH=/home/kek/Documents/prog/libi/lib/pkgconfig
+
+// g++ -g -std=c++11 -o merkle BlockChain.cpp genBlock.cpp hashFunc.cpp merkle.cpp mine.cpp $(pkg-config --cflags --libs libbitcoin-system)
+
 std::string genNonce(int diff)
 {
     std::string nonce = "";
@@ -33,31 +37,31 @@ struct tree
     }
 };
 
-std::string getMerkle(std::vector<transactions> trans)
-{
+// std::string getMerkle(std::vector<transactions> trans)
+// {
 
-    std::vector<std::string> hashes;
+//     std::vector<std::string> hashes;
 
-    for (int i = 0; i < trans.size(); i++)
-        hashes.push_back(trans[i].ID);
+//     for (int i = 0; i < trans.size(); i++)
+//         hashes.push_back(trans[i].ID);
 
-    while (hashes.size() > 1)
-    {
-        if (hashes.size() % 2 != 0)
-            hashes.push_back(hashes.back());
-        std::string newMerkle = "";
+//     while (hashes.size() > 1)
+//     {
+//         if (hashes.size() % 2 != 0)
+//             hashes.push_back(hashes.back());
+//         std::string newMerkle = "";
 
-        std::vector<std::string> tempHash;
+//         std::vector<std::string> tempHash;
 
-        for (int i = 0; i < hashes.size(); i += 2)
-        {
-            tempHash.push_back(hash(hashes[i] + hashes[i + 1]));
-        }
+//         for (int i = 0; i < hashes.size(); i += 2)
+//         {
+//             tempHash.push_back(hash(hashes[i] + hashes[i + 1]));
+//         }
 
-        hashes = tempHash;
-    }
-    return hashes[0];
-}
+//         hashes = tempHash;
+//     }
+//     return hashes[0];
+// }
 
 block genBlock(block prevBlock, std::vector<transactions> blockTransactions, std::vector<user> &users, std::vector<block> &blockChain, int &foundNonce)
 {
@@ -113,7 +117,29 @@ block genBlock(block prevBlock, std::vector<transactions> blockTransactions, std
         }
     }
 
-    newBlock.Header.merkleHash = getMerkle(newBlock.Transtacions);
+    bc::hash_list tx_hashes;
+    
+    char * temp = new char[65];
+
+    for (int i = 0; i < newBlock.Transtacions.size(); i++)
+    {
+        
+        // newBlock.Transtacions[i].ID.erase(64, std::string::npos);
+        for (int j = 0; j < 65; j++)
+        {
+            temp[j] = newBlock.Transtacions[i].ID[j];
+        }
+        
+        const char c[65] = {*temp};
+
+        tx_hashes.push_back(bc::hash_literal(c));
+    }
+    const bc::hash_digest merkle_root = create_merkle(tx_hashes);
+    
+    newBlock.Header.merkleHash =  bc::encode_base16(merkle_root);
+
+    
+    
 
     cout << "New block merkle hash: " << newBlock.Header.merkleHash << endl
          << endl;
@@ -127,6 +153,7 @@ block genBlock(block prevBlock, std::vector<transactions> blockTransactions, std
             break;
         cout << "Please enter a valid input![Y/N]";
     }
+    int counter = 0;
     if (cont == "Y" || cont == "y")
     {
 
@@ -144,5 +171,5 @@ block genBlock(block prevBlock, std::vector<transactions> blockTransactions, std
         }
     }
 
-    blockChain.push_back( newBlock);
+    blockChain.push_back(newBlock);
 }
